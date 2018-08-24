@@ -1,0 +1,172 @@
+---
+title: "Untitled"
+author: "Jake Daniels"
+date: "August 23, 2018"
+output: html_document
+---
+```{r}
+library(rvest)
+library(tidyverse)
+library(magrittr)
+library(scales)
+library(knitr)
+library(lubridate)
+```
+
+
+```{r}
+url <- "https://www.imdb.com/title/tt0313038/episodes?season="
+timevalues <- 13:22
+
+unitedata <- function(x){
+  full_url <- paste0(url, x)
+  full_url
+}
+
+finalurl <- unitedata(timevalues)
+finalurl
+```
+
+```{r}
+
+imdbScrape <- function(x){
+  page <- x
+  name <- page %>% read_html() %>% html_nodes('#episodes_content strong a') %>% html_text() %>% as.data.frame()
+  rating <- page %>% read_html() %>% html_nodes('.ipl-rating-widget') %>% html_text() %>% as.data.frame()
+  details <- page %>% read_html() %>% html_nodes('.zero-z-index div') %>% html_text() %>% as.data.frame()
+  
+  chart <- cbind(name, rating, details)
+  names(chart) <- c("Name", "Rating", "Details")
+  chart <- as.tibble(chart)
+  return(chart)
+  Sys.sleep(5)
+}
+```
+
+```{r}
+bachelor <- map_df(finalurl, imdbScrape)
+```
+
+```{r}
+bachelor$Season <- str_extract(bachelor$Details, "S[0-9]+")
+bachelor$Season <- as.numeric(str_extract(bachelor$Season, "[0-9]+"))
+
+bachelor$Episode <- str_extract(bachelor$Details, "Ep[0-9]+")
+bachelor$Episode <- as.numeric(str_extract(bachelor$Episode, "[0-9]+"))
+
+bachelor$Details <- NULL
+
+bachelor$Rating <- str_extract(bachelor$Rating, "[0-9].[0-9]")
+na_index <- which(!is.na(bachelor$Rating))
+bachelor <- bachelor[na_index,]
+bachelor$Rating <- as.numeric(bachelor$Rating)
+```
+
+```{r}
+bachelor_names <- c('Jason', 'Jake', 'Brad', 'Ben', 'Sean', 'Juan-Pablo', 'Chris', 'Ben', 'Nick', 'Arie')
+```
+
+
+```{r}
+bachelor %>%
+  group_by(Season) %>%
+  summarise(Rating = mean(Rating)) %>%
+  
+  ggplot() +
+
+  geom_line(aes(x=Season, y=Rating), color = "Red", size = 1.1) +
+  
+  scale_x_continuous(breaks=c(13:22), labels=bachelor_names, limits=c(13,22)) +
+  
+  scale_y_continuous(breaks=c(1:10), labels=c(1:10), limits=c(1,10)) +
+  
+  geom_point(x = 22, y= mean(bachelor[which(bachelor$Season == 22),]$Rating), size = 2) +
+  geom_point(x = 18, y = mean(bachelor[which(bachelor$Season == 18),]$Rating), size = 2) +
+  annotate("text", x = 18, y = 4.5, label = "Did Not Propose", color = "black") +
+  
+  
+  geom_line(aes(x = Season, y = mean(Rating)), linetype = 2, color = "Black") + 
+  annotate("text", x = 27, y = 7.45, label = "avg", color = "black", size = 3) +
+
+  theme_classic() + 
+  labs(title = "Is Arie the Worst Bachelor in Show History?",
+       subtitle = "Average Episode Ratings by Season",
+       caption = "Source: IMDB, August 2018",
+       x = "Seasons 13 - 22",
+       y = "Rating") +
+  theme(plot.title = element_text(family='', face = 'bold', colour = 'black', size = 20),
+        plot.subtitle = element_text(family='', face = 'italic', colour = 'black', size = 10),
+        plot.caption = element_text(family='', colour = 'black', size = 10),
+        axis.title.x = element_text(family='', colour = 'black', size = 12),
+        axis.title.y = element_text(family='', colour = 'black', size = 12),
+        plot.background = element_rect(fill = "white"))
+```
+```{r}
+bachelor %>%
+  mutate(Episode = as.character(Episode))
+  ggplot() +
+    geom_line(aes(x=bachelor[bachelor$Season==13,]$Episode,y=bachelor[bachelor$Season==13,]$Rating), alpha = 0.3) +
+    geom_line(aes(x=bachelor[bachelor$Season==14,]$Episode,y=bachelor[bachelor$Season==14,]$Rating), alpha = 0.3) +
+    geom_line(aes(x=bachelor[bachelor$Season==15,]$Episode,y=bachelor[bachelor$Season==15,]$Rating), alpha = 0.3) +
+    geom_line(aes(x=bachelor[bachelor$Season==16,]$Episode,y=bachelor[bachelor$Season==16,]$Rating), alpha = 0.3) +
+    geom_line(aes(x=bachelor[bachelor$Season==17,]$Episode,y=bachelor[bachelor$Season==17,]$Rating), alpha = 0.3) +
+    geom_line(aes(x=bachelor[bachelor$Season==18,]$Episode,y=bachelor[bachelor$Season==18,]$Rating), colour = "blue", size = 1) +
+    geom_line(aes(x=bachelor[bachelor$Season==19,]$Episode,y=bachelor[bachelor$Season==19,]$Rating), alpha = 0.3) +
+    geom_line(aes(x=bachelor[bachelor$Season==20,]$Episode,y=bachelor[bachelor$Season==20,]$Rating), alpha = 0.3) +
+    geom_line(aes(x=bachelor[bachelor$Season==21,]$Episode,y=bachelor[bachelor$Season==21,]$Rating), alpha = 0.3) +
+    geom_line(aes(x=bachelor[bachelor$Season==22,]$Episode,y=bachelor[bachelor$Season==22,]$Rating), colour = "red", size = 1) +
+  
+  scale_x_continuous(breaks=c(0:12), labels=c(0:12), limits=c(0,12)) +
+  scale_y_continuous(breaks=c(1:10), labels=c(1:10), limits=c(1,10)) +
+  #scale_color_identity(name = "Bachelors", labels = c("Arie", "Juan-Pablo"), breaks = c(22,18), guide = "legend")  + 
+    
+    geom_point(aes(x = 0, y= bachelor[which(bachelor$Episode == 0 & bachelor$Season == 18),]$Rating), size = 2) +
+    geom_point(aes(x = 10, y= bachelor[which(bachelor$Episode == 10 & bachelor$Season == 18),]$Rating), size = 2) +
+    geom_point(aes(x = 12, y= bachelor[which(bachelor$Episode == 12 & bachelor$Season == 18),]$Rating), size = 2) +
+    annotate("text", x = 0.55, y = 3.45, label = "worst premiere", color = "black", size = 4) +
+    annotate("text", x = 10, y = 3, label = "worst episode", color = "black", size = 4) +
+    annotate("text", x = 11.8, y = 4.15, label = "worst finale", color = "black", size = 4) +
+
+  theme_classic() + 
+  labs(title = "Arie vs. Juan-Pablo",
+       subtitle = "Episode Ratings per Season",
+       caption = "Source: IMDB, August 2018",
+       x = "Episode",
+       y = "Rating") +
+  theme(plot.title = element_text(family='', face = 'bold', colour = 'black', size = 20),
+        plot.subtitle = element_text(family='', face = 'italic', colour = 'black', size = 10),
+        plot.caption = element_text(family='', colour = 'black', size = 10),
+        axis.title.x = element_text(family='', face = 'bold', colour = 'black', size = 12),
+        axis.title.y = element_text(family='', colour = 'black', size = 12),
+        plot.background = element_rect(fill = "white"))
+```
+
+```{r}
+bachelor %>%
+  group_by(Season) %>%
+  filter(Season == 18 | Season == 22) %>%
+ggplot(aes(x = Episode, y = Rating, col = as.factor(Season))) +
+  geom_line(alpha = 0.5) + 
+  geom_smooth(method = "lm", se = F, size = 1) +
+  theme_classic() + 
+  labs(title = "Arie vs. Juan-Pablo",
+       subtitle = "Who had the most disappointing season?",
+       caption = "Source: IMDB, August 2018",
+       x = "Episode",
+       y = "Rating") +
+  
+  scale_color_manual(name = "Bachelor",
+                       breaks = c("22", "18"),
+                     values=c("blue", "red"),
+                     labels=c("Arie (-0.17)", "Juan-Pablo (-0.13)")) +
+  scale_x_continuous(breaks=c(0:12), labels=c(0:12), limits=c(0,12)) +
+  scale_y_continuous(breaks=c(1:10), labels=c(1:10), limits=c(1,10)) +
+  
+  theme(plot.title = element_text(family='', face = 'bold', colour = 'black', size = 20),
+        plot.subtitle = element_text(family='', face = 'italic', colour = 'black', size = 10),
+        plot.caption = element_text(family='', colour = 'black', size = 10),
+        axis.title.x = element_text(family='', face = 'bold', colour = 'black', size = 12),
+        axis.title.y = element_text(family='', colour = 'black', size = 12),
+        plot.background = element_rect(fill = "white"))
+```
+
