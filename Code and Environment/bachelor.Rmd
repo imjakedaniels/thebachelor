@@ -78,14 +78,11 @@ bachelor %>%
   
 ggplot() +
 
-  geom_line(aes(x=Season, y=Rating), color = "Red", size = 1.1) +
-  
-  geom_line(aes(x = Season, y = mean(Rating)), linetype = 2, color = "Black") + 
-    annotate("text", x = 27, y = 7.45, label = "avg", color = "black", size = 3) +
+  geom_line(aes(x=Season, y=Rating), color = "grey", size = 1.1) +
+    geom_line(aes(x = Season, y = mean(Rating)), linetype = 2, color = "Black") + 
   
   geom_point(x = 22, y= mean(bachelor[which(bachelor$Season == 22),]$Rating), size = 2) +
   geom_point(x = 18, y = mean(bachelor[which(bachelor$Season == 18),]$Rating), size = 2) +
-    annotate("text", x = 18, y = 4.5, label = "Did Not Propose", color = "black") +
   
   scale_x_continuous(breaks=c(13:22), labels=bachelor_names, limits=c(13,22)) +
   scale_y_continuous(breaks=c(1:10), labels=c(1:10), limits=c(1,10)) +
@@ -130,7 +127,7 @@ bachelor %>%
     #scale_colour_manual(name = "Bachelors", labels = c("Arie", "Juan-Pablo"), guide = "legend")  + 
   
     theme_classic() + 
-  labs(title = "Arie vs. Juan-Pablo",
+  labs(title = "Season Breakdown",
        subtitle = "Episode Ratings per Season",
        caption = "Source: IMDB, August 2018",
        x = "Episode",
