@@ -121,11 +121,11 @@ bachelor %>%
     
     scale_discrete_manual(name = "Bachelors", labels = c("Arie", "Juan Pablo"), values = c("blue", "red"), aesthetics = "colour")  + 
     
-    geom_point(aes(x = 0, y= bachelor[which(bachelor$Episode == 0 & bachelor$Season == 18),]$Rating), size = 2) +
+    geom_point(aes(x = 0, y= bachelor[which(bachelor$Episode == 0 & bachelor$Season == 18),]$Rating), size = 2, shape = 15, colour = "red") +
       annotate("text", x = 0.45, y = 3.25, label = "Introduction", color = "black", size = 4) +
-    geom_point(aes(x = 10, y= bachelor[which(bachelor$Episode == 10 & bachelor$Season == 18),]$Rating), size = 2) +
+    geom_point(aes(x = 10, y= bachelor[which(bachelor$Episode == 10 & bachelor$Season == 18),]$Rating), size = 2, shape = 15, colour = "red") +
       annotate("text", x = 10, y = 3, label = "Women Tell All", color = "black", size = 4) +
-    geom_point(aes(x = 12, y= bachelor[which(bachelor$Episode == 12 & bachelor$Season == 18),]$Rating), size = 2) +
+    geom_point(aes(x = 12, y= bachelor[which(bachelor$Episode == 12 & bachelor$Season == 18),]$Rating), size = 2, shape = 15, colour = "red") +
       annotate("text", x = 12.2, y = 3.8, label = "After the Rose", color = "black", size = 4) +
     
     scale_x_continuous(breaks=c(0:13), labels=c(0:13), limits=c(0,13)) +
@@ -164,7 +164,7 @@ bachelor %>%
   
     scale_discrete_manual(name = "Bachelors", labels = c("Arie", "Juan Pablo"), values = c("blue", "red"), aesthetics = "colour")  + 
    
-    geom_point(aes(x = 11, y= bachelor[which(bachelor$Episode == 11 & bachelor$Season == 22),]$Rating), size = 2) +
+    geom_point(aes(x = 11, y= bachelor[which(bachelor$Episode == 11 & bachelor$Season == 22),]$Rating), size = 2, shape = 15, colour = "blue") +
       annotate("text", x = 11, y = 3.55, label = "Finale", color = "black", size = 4) +
 
     scale_x_continuous(breaks=c(0:13), labels=c(0:13), limits=c(0,13)) +
