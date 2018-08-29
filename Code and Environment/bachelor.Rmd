@@ -80,11 +80,12 @@ bachelor %>%
   
 ggplot() +
 
-  geom_line(aes(x=Season, y=Rating), color = "dark grey", size = 1.1) +
-    geom_line(aes(x = Season, y = mean(Rating)), linetype = 2, color = "Black") + 
-  
-  geom_point(x = 22, y= mean(bachelor[which(bachelor$Season == 22),]$Rating), size = 2, colour = "blue") +
-  geom_point(x = 18, y = mean(bachelor[which(bachelor$Season == 18),]$Rating), size = 2, colour = "red") +
+  geom_line(aes(x=Season, y=Rating), color = "dark grey", size = 1.2) +
+  geom_line(aes(x = Season, y = mean(Rating)), linetype = 2, color = "Black") + 
+
+  geom_point(aes(x=Season, y=Rating), color = "black", size = 2) +
+  geom_point(x = 22, y= mean(bachelor[which(bachelor$Season == 22),]$Rating), size = 3, shape = 15, colour = "blue") +
+  geom_point(x = 18, y = mean(bachelor[which(bachelor$Season == 18),]$Rating), size = 3, shape = 15, colour = "red") +
   
   scale_x_continuous(breaks=c(13:22), labels=bachelor_names, limits=c(13,22)) +
   scale_y_continuous(breaks=c(1:10), labels=c(1:10), limits=c(1,10)) +
@@ -100,7 +101,8 @@ ggplot() +
         plot.caption = element_text(family='', colour = 'black', size = 10),
         axis.title.x = element_text(family='', colour = 'black', size = 12),
         axis.title.y = element_text(family='', colour = 'black', size = 12),
-        plot.background = element_rect(fill = "white"))
+        plot.background = element_rect(fill = "white"),
+        axis.line = element_line(size = 1, colour = "dark grey"))
 ```
 ## Juan Pablo
 ```{r}
@@ -141,6 +143,7 @@ bachelor %>%
         plot.caption = element_text(family='', colour = 'black', size = 10),
         axis.title.x = element_text(family='', face = 'bold', colour = 'black', size = 12),
         axis.title.y = element_text(family='', colour = 'black', size = 12),
+        axis.line = element_line(size = 1, colour = "dark grey"),
         plot.background = element_rect(fill = "white"),
         legend.title = element_blank())
 ```
@@ -179,6 +182,7 @@ bachelor %>%
         plot.caption = element_text(family='', colour = 'black', size = 10),
         axis.title.x = element_text(family='', face = 'bold', colour = 'black', size = 12),
         axis.title.y = element_text(family='', colour = 'black', size = 12),
+        axis.line = element_line(size = 1, colour = "dark grey"),
         plot.background = element_rect(fill = "white"),
         legend.title = element_blank())
 ```
@@ -209,6 +213,7 @@ ggplot(aes(x = Episode, y = Rating, col = as.factor(Season))) +
         plot.caption = element_text(family='', colour = 'black', size = 10),
         axis.title.x = element_text(family='', colour = 'black', size = 12),
         axis.title.y = element_text(family='', colour = 'black', size = 12),
+        axis.line = element_line(size = 1, colour = "dark grey"),
         plot.background = element_rect(fill = "white"),
         legend.title = element_blank())
 ```
