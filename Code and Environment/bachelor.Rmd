@@ -1,11 +1,11 @@
 ---
-title: "Untitled"
+title: "Bachelor"
 author: "Jake Daniels"
 date: "August 23, 2018"
 output: html_document
 ---
 ## Required Packages!
-```{r}
+```{r message=FALSE, warning = FALSE}
 library(rvest)
 library(tidyverse)
 library(magrittr)
@@ -31,7 +31,6 @@ finalurl
 
 Designing web-crawler
 ```{r}
-
 imdbScrape <- function(x){
   page <- x
   name <- page %>% read_html() %>% html_nodes('#episodes_content strong a') %>% html_text() %>% as.data.frame()
@@ -47,7 +46,7 @@ imdbScrape <- function(x){
 ```
 
 Initializing crawler on the URL list
-```{r}
+```{r warning = FALSE}
 bachelor <- map_df(finalurl, imdbScrape)
 ```
 Cleaning
@@ -72,8 +71,8 @@ bachelor_names <- c('Jason', 'Jake', 'Brad', 'Ben', 'Sean', 'Juan Pablo', 'Chris
 ```
 
 # Visuals
-## Season Comparison
-```{r}
+Season Comparison
+```{r echo=FALSE}
 bachelor %>%
   group_by(Season) %>%
   summarise(Rating = mean(Rating)) %>%
@@ -92,7 +91,7 @@ ggplot() +
   
   theme_classic() + 
   labs(title = "Was Arie the Worst Bachelor in Show History?",
-       subtitle = "Average Episode Ratings by Season",
+       subtitle = "Average Episode Ratings By Season",
        caption = "Source: IMDB, August 2018",
        x = "Seasons 13 - 22",
        y = "Rating") +
@@ -104,8 +103,8 @@ ggplot() +
         plot.background = element_rect(fill = "white"),
         axis.line = element_line(size = 1, colour = "dark grey"))
 ```
-## Juan Pablo
-```{r}
+Juan Pablo
+```{r echo=FALSE}
 bachelor %>%
   mutate(Episode = as.character(Episode))
   ggplot() +
@@ -134,7 +133,7 @@ bachelor %>%
 
     theme_classic() + 
   labs(title = "We Forgot About Juan Pablo",
-       subtitle = "Episode Ratings per Season",
+       subtitle = "Episode Ratings Per Season",
        caption = "Source: IMDB, August 2018",
        x = "Episode",
        y = "Rating") +
@@ -147,8 +146,8 @@ bachelor %>%
         plot.background = element_rect(fill = "white"),
         legend.title = element_blank())
 ```
-## Arie
-```{r}
+Arie
+```{r echo=FALSE}
 bachelor %>%
   mutate(Episode = as.character(Episode))
   ggplot() +
@@ -173,7 +172,7 @@ bachelor %>%
   
     theme_classic() + 
   labs(title = "Still, Arie had the Worst Finale",
-       subtitle = "Episode Ratings per Season",
+       subtitle = "Episode Ratings Per Season",
        caption = "Source: IMDB, August 2018",
        x = "Episode",
        y = "Rating") +
@@ -186,8 +185,9 @@ bachelor %>%
         plot.background = element_rect(fill = "white"),
         legend.title = element_blank())
 ```
-## Linear Comparison
-```{r}
+
+Linear Comparison
+```{r echo=FALSE}
 bachelor %>%
   group_by(Season) %>%
   filter(Season == 18 | Season == 22) %>%
@@ -195,8 +195,8 @@ ggplot(aes(x = Episode, y = Rating, col = as.factor(Season))) +
   geom_line(alpha = 0.5) + 
   geom_smooth(method = "lm", se = F, size = 1) +
   theme_classic() + 
-  labs(title = "But wait...",
-       subtitle = "Who had the most disappointing season?",
+  labs(title = "The *Audience* Tells All",
+       subtitle = "Comparing Trend Lines By Episode Rating",
        caption = "Source: IMDB, August 2018",
        x = "Episode",
        y = "Rating") +
