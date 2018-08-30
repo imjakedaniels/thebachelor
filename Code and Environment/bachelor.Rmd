@@ -168,7 +168,7 @@ ggplot() +
   scale_y_continuous(breaks=c(1:10), labels=c(1:10), limits=c(1,10)) +
   
   theme_classic() + 
-  labs(title = "Still, Arie had the Worst Finale",
+  labs(title = "Yeah, Arie had the Worst Finale",
        subtitle = "Episode Ratings Per Season",
        caption = "Source: IMDB, August 2018",
        x = "Episode",
