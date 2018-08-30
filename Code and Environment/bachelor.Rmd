@@ -1,10 +1,11 @@
 ---
-title: "Bachelor"
-author: "Jake Daniels"
+title: "The Bachelor Collaboration"
+author: "Jake Daniels & Leila Taweel"
 date: "August 23, 2018"
 output: html_document
 ---
-## Required Packages!
+
+### Required Packages!
 ```{r message=FALSE, warning = FALSE}
 library(rvest)
 library(tidyverse)
@@ -14,7 +15,7 @@ library(knitr)
 library(lubridate)
 ```
 
-# Getting our Data
+### Getting our Data
 Making our URL list
 ```{r}
 url <- "https://www.imdb.com/title/tt0313038/episodes?season="
@@ -48,9 +49,17 @@ imdbScrape <- function(x){
 Initializing crawler on the URL list
 ```{r warning = FALSE}
 bachelor <- map_df(finalurl, imdbScrape)
+
+head(bachelor)
 ```
+
 Cleaning
 ```{r}
+bachelor$Rating <- str_extract(bachelor$Rating, "[0-9].[0-9]")
+na_index <- which(!is.na(bachelor$Rating))
+bachelor <- bachelor[na_index,]
+bachelor$Rating <- as.numeric(bachelor$Rating)
+
 bachelor$Season <- str_extract(bachelor$Details, "S[0-9]+")
 bachelor$Season <- as.numeric(str_extract(bachelor$Season, "[0-9]+"))
 
@@ -58,11 +67,6 @@ bachelor$Episode <- str_extract(bachelor$Details, "Ep[0-9]+")
 bachelor$Episode <- as.numeric(str_extract(bachelor$Episode, "[0-9]+"))
 
 bachelor$Details <- NULL
-
-bachelor$Rating <- str_extract(bachelor$Rating, "[0-9]\\.[0-9]")
-na_index <- which(!is.na(bachelor$Rating))
-bachelor <- bachelor[na_index,]
-bachelor$Rating <- as.numeric(bachelor$Rating)
 ```
 
 Bachelor Names
@@ -70,22 +74,21 @@ Bachelor Names
 bachelor_names <- c('Jason', 'Jake', 'Brad', 'Ben', 'Sean', 'Juan Pablo', 'Chris', 'Ben', 'Nick', 'Arie')
 ```
 
-# Visuals
-Season Comparison
-```{r echo=FALSE}
+## Visuals
+
+```{r}
 bachelor %>%
   group_by(Season) %>%
   summarise(Rating = mean(Rating)) %>%
   
 ggplot() +
+    geom_line(aes(x = Season, y = Rating), color = "dark grey", size = 1.2) +
+    geom_line(aes(x = Season, y = mean(Rating)), linetype = 2, color = "Black") + 
 
-  geom_line(aes(x=Season, y=Rating), color = "dark grey", size = 1.2) +
-  geom_line(aes(x = Season, y = mean(Rating)), linetype = 2, color = "Black") + 
-
-  geom_point(aes(x=Season, y=Rating), color = "black", size = 2) +
-  geom_point(x = 22, y= mean(bachelor[which(bachelor$Season == 22),]$Rating), size = 3, shape = 15, colour = "blue") +
-  geom_point(x = 18, y = mean(bachelor[which(bachelor$Season == 18),]$Rating), size = 3, shape = 15, colour = "red") +
-  
+    geom_point(aes(x=Season, y=Rating), color = "black", size = 2) +
+    geom_point(x = 22, y = mean(bachelor[which(bachelor$Season == 22),]$Rating), size = 3, shape = 15, colour = "blue") +
+    geom_point(x = 18, y = mean(bachelor[which(bachelor$Season == 18),]$Rating), size = 3, shape = 15, colour = "red") +
+   
   scale_x_continuous(breaks=c(13:22), labels=bachelor_names, limits=c(13,22)) +
   scale_y_continuous(breaks=c(1:10), labels=c(1:10), limits=c(1,10)) +
   
@@ -95,19 +98,16 @@ ggplot() +
        caption = "Source: IMDB, August 2018",
        x = "Seasons 13 - 22",
        y = "Rating") +
-  theme(plot.title = element_text(family='', face = 'bold', colour = 'black', size = 20),
-        plot.subtitle = element_text(family='', face = 'italic', colour = 'black', size = 10),
-        plot.caption = element_text(family='', colour = 'black', size = 10),
-        axis.title.x = element_text(family='', colour = 'black', size = 12),
-        axis.title.y = element_text(family='', colour = 'black', size = 12),
-        plot.background = element_rect(fill = "white"),
+  theme(plot.title = element_text(family ='', face = 'bold', colour = 'black', size = 20),
+        plot.subtitle = element_text(family ='', face = 'italic', colour = 'black', size = 10),
+        plot.caption = element_text(family ='', colour = 'black', size = 10),
+        axis.title.x = element_text(family ='', colour = 'black', size = 12),
+        axis.title.y = element_text(family ='', colour = 'black', size = 12),
         axis.line = element_line(size = 1, colour = "dark grey"))
 ```
-Juan Pablo
-```{r echo=FALSE}
-bachelor %>%
-  mutate(Episode = as.character(Episode))
-  ggplot() +
+
+```{r}
+ggplot() +
     geom_line(aes(x=bachelor[bachelor$Season==13,]$Episode,y=bachelor[bachelor$Season==13,]$Rating), alpha = 0.3) +
     geom_line(aes(x=bachelor[bachelor$Season==14,]$Episode,y=bachelor[bachelor$Season==14,]$Rating), alpha = 0.3) +
     geom_line(aes(x=bachelor[bachelor$Season==15,]$Episode,y=bachelor[bachelor$Season==15,]$Rating), alpha = 0.3) +
@@ -119,7 +119,7 @@ bachelor %>%
     geom_line(aes(x=bachelor[bachelor$Season==21,]$Episode,y=bachelor[bachelor$Season==21,]$Rating), alpha = 0.3) +
     geom_line(aes(x=bachelor[bachelor$Season==22,]$Episode,y=bachelor[bachelor$Season==22,]$Rating, colour = "blue"), size = 1, show.legend = TRUE) +
     
-    scale_discrete_manual(name = "Bachelors", labels = c("Arie", "Juan Pablo"), values = c("blue", "red"), aesthetics = "colour")  + 
+  scale_discrete_manual(name = "Bachelors", labels = c("Arie", "Juan Pablo"), values = c("blue", "red"), aesthetics = "colour")  + 
     
     geom_point(aes(x = 0, y= bachelor[which(bachelor$Episode == 0 & bachelor$Season == 18),]$Rating), size = 2, shape = 15, colour = "red") +
       annotate("text", x = 0.45, y = 3.25, label = "Introduction", color = "black", size = 4) +
@@ -128,10 +128,10 @@ bachelor %>%
     geom_point(aes(x = 12, y= bachelor[which(bachelor$Episode == 12 & bachelor$Season == 18),]$Rating), size = 2, shape = 15, colour = "red") +
       annotate("text", x = 12.2, y = 3.8, label = "After the Rose", color = "black", size = 4) +
     
-    scale_x_continuous(breaks=c(0:13), labels=c(0:13), limits=c(0,13)) +
-    scale_y_continuous(breaks=c(1:10), labels=c(1:10), limits=c(1,10)) +
+  scale_x_continuous(breaks=c(0:13), labels=c(0:13), limits=c(0,13)) +
+  scale_y_continuous(breaks=c(1:10), labels=c(1:10), limits=c(1,10)) +
 
-    theme_classic() + 
+  theme_classic() + 
   labs(title = "We Forgot About Juan Pablo",
        subtitle = "Episode Ratings Per Season",
        caption = "Source: IMDB, August 2018",
@@ -143,13 +143,10 @@ bachelor %>%
         axis.title.x = element_text(family='', face = 'bold', colour = 'black', size = 12),
         axis.title.y = element_text(family='', colour = 'black', size = 12),
         axis.line = element_line(size = 1, colour = "dark grey"),
-        plot.background = element_rect(fill = "white"),
         legend.title = element_blank())
 ```
-Arie
-```{r echo=FALSE}
-bachelor %>%
-  mutate(Episode = as.character(Episode))
+
+```{r}
   ggplot() +
     geom_line(aes(x=bachelor[bachelor$Season==13,]$Episode,y=bachelor[bachelor$Season==13,]$Rating), alpha = 0.3) +
     geom_line(aes(x=bachelor[bachelor$Season==14,]$Episode,y=bachelor[bachelor$Season==14,]$Rating), alpha = 0.3) +
@@ -162,15 +159,15 @@ bachelor %>%
     geom_line(aes(x=bachelor[bachelor$Season==21,]$Episode,y=bachelor[bachelor$Season==21,]$Rating), alpha = 0.3) +
     geom_line(aes(x=bachelor[bachelor$Season==22,]$Episode,y=bachelor[bachelor$Season==22,]$Rating, colour = "blue"), size = 1, show.legend = TRUE) +
   
-    scale_discrete_manual(name = "Bachelors", labels = c("Arie", "Juan Pablo"), values = c("blue", "red"), aesthetics = "colour")  + 
+  scale_discrete_manual(name = "Bachelors", labels = c("Arie", "Juan Pablo"), values = c("blue", "red"), aesthetics = "colour")  + 
    
     geom_point(aes(x = 11, y= bachelor[which(bachelor$Episode == 11 & bachelor$Season == 22),]$Rating), size = 2, shape = 15, colour = "blue") +
       annotate("text", x = 11, y = 3.55, label = "Finale", color = "black", size = 4) +
 
-    scale_x_continuous(breaks=c(0:13), labels=c(0:13), limits=c(0,13)) +
-    scale_y_continuous(breaks=c(1:10), labels=c(1:10), limits=c(1,10)) +
+  scale_x_continuous(breaks=c(0:13), labels=c(0:13), limits=c(0,13)) +
+  scale_y_continuous(breaks=c(1:10), labels=c(1:10), limits=c(1,10)) +
   
-    theme_classic() + 
+  theme_classic() + 
   labs(title = "Still, Arie had the Worst Finale",
        subtitle = "Episode Ratings Per Season",
        caption = "Source: IMDB, August 2018",
@@ -182,24 +179,17 @@ bachelor %>%
         axis.title.x = element_text(family='', face = 'bold', colour = 'black', size = 12),
         axis.title.y = element_text(family='', colour = 'black', size = 12),
         axis.line = element_line(size = 1, colour = "dark grey"),
-        plot.background = element_rect(fill = "white"),
         legend.title = element_blank())
 ```
 
-Linear Comparison
-```{r echo=FALSE}
+```{r}
 bachelor %>%
   group_by(Season) %>%
   filter(Season == 18 | Season == 22) %>%
-ggplot(aes(x = Episode, y = Rating, col = as.factor(Season))) +
-  geom_line(alpha = 0.5) + 
-  geom_smooth(method = "lm", se = F, size = 1) +
-  theme_classic() + 
-  labs(title = "The *Audience* Tells All",
-       subtitle = "Comparing Trend Lines By Episode Rating",
-       caption = "Source: IMDB, August 2018",
-       x = "Episode",
-       y = "Rating") +
+  
+  ggplot(aes(x = Episode, y = Rating, col = as.factor(Season))) +
+    geom_line(alpha = 0.5) + 
+    geom_smooth(method = "lm", se = F, size = 1) +
   
   scale_color_manual(name = "Bachelor",
                      breaks = c("22", "18"),
@@ -208,12 +198,17 @@ ggplot(aes(x = Episode, y = Rating, col = as.factor(Season))) +
   scale_x_continuous(breaks=c(0:12), labels=c(0:12), limits=c(0,12)) +
   scale_y_continuous(breaks=c(1:10), labels=c(1:10), limits=c(1,10)) +
   
+  theme_classic() + 
+  labs(title = "The *Audience* Tells All",
+       subtitle = "Comparing Trend Lines By Episode Rating",
+       caption = "Source: IMDB, August 2018",
+       x = "Episode",
+       y = "Rating") +
   theme(plot.title = element_text(family='', face = 'bold', colour = 'black', size = 20),
         plot.subtitle = element_text(family='', face = 'italic', colour = 'black', size = 10),
         plot.caption = element_text(family='', colour = 'black', size = 10),
         axis.title.x = element_text(family='', colour = 'black', size = 12),
         axis.title.y = element_text(family='', colour = 'black', size = 12),
         axis.line = element_line(size = 1, colour = "dark grey"),
-        plot.background = element_rect(fill = "white"),
         legend.title = element_blank())
-```
+``` 
